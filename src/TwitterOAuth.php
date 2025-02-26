@@ -362,7 +362,7 @@ class TwitterOAuth extends Config
             $file = file_get_contents($parameters['media']);
         }
         $parameters['media'] = base64_encode($file);
-        return $this->http('POST', self::UPLOAD_HOST, $path, $parameters, true);
+        return $this->http('POST', self::UPLOAD_HOST, $path, $parameters, ['jsonPayload' => false,]);
         
         
         // if (

@@ -354,18 +354,29 @@ class TwitterOAuth extends Config
      */
     private function uploadMediaNotChunked(string $path, array $parameters)
     {
-        if (
-            !is_readable($parameters['media']) ||
-            ($file = file_get_contents($parameters['media'])) === false
-        ) {
-            throw new \InvalidArgumentException(
-                'You must supply a readable file',
-            );
+        if (is_resource($parameters['media']) && get_resource_type($parameters['media']) === 'stream') {
+            $file = stream_get_contents($parameters['media']);
+        } elseif (!is_readable($parameters['media']) || ($file = file_get_contents($parameters['media'])) === false) {
+            throw new \InvalidArgumentException('You must supply a readable file');
+        } else {
+            $file = file_get_contents($parameters['media']);
         }
         $parameters['media'] = base64_encode($file);
-        return $this->http('POST', self::UPLOAD_HOST, $path, $parameters, [
-            'jsonPayload' => false,
-        ]);
+        return $this->http('POST', self::UPLOAD_HOST, $path, $parameters, true);
+        
+        
+        // if (
+        //     !is_readable($parameters['media']) ||
+        //     ($file = file_get_contents($parameters['media'])) === false
+        // ) {
+        //     throw new \InvalidArgumentException(
+        //         'You must supply a readable file',
+        //     );
+        // }
+        // $parameters['media'] = base64_encode($file);
+        // return $this->http('POST', self::UPLOAD_HOST, $path, $parameters, [
+        //     'jsonPayload' => false,
+        // ]);
     }
 
     /**
